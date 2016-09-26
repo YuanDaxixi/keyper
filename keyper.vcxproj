@@ -64,6 +64,22 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="cipher.h" />
+    <ClInclude Include="cmd_parser.h" />
+    <ClInclude Include="doubly_linked_list.h" />
+    <ClInclude Include="info_struct.h" />
+    <ClInclude Include="PRG.h" />
+    <ClInclude Include="rw_info.h" />
+    <ClInclude Include="sha.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="cipher.c" />
+    <ClCompile Include="cmd_parser.c" />
+    <ClCompile Include="doubly_linked_list.c" />
+    <ClCompile Include="info_struct.c" />
+    <ClCompile Include="PRG.c" />
+    <ClCompile Include="rw_info.c" />
+    <ClCompile Include="sha.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
