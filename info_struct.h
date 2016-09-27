@@ -11,6 +11,7 @@
 #define ACC_LEN 32
 #define KEY_LEN 16
 #define SHA_LEN 256
+#define DES_LEN 128
 
 #include "doubly_linked_list.h"
 
@@ -18,6 +19,7 @@ typedef struct{
         char encrypted_key[KEY_LEN];
         char stream_cipher[KEY_LEN];
         char account[ACC_LEN];
+        char description[DES_LEN];
 }AccKeyPair;
 
 typedef struct{
@@ -74,12 +76,12 @@ int change_key(DLinkedList *account_list, char *account_name);
 void show_account(const pDListNode account_node);
 
 /*
-* fucntion:  verify the main key
-* return:    return 0 if fail
-* parameter: the address of main and secondary key(password)
-* call:      none
-* called by: none
-*/
+ * fucntion:  verify the main key
+ * return:    return 0 if fail
+ * parameter: the address of main and secondary key(password)
+ * call:      none
+ * called by: none
+ */
 int verify_mainkey(void);
 
 /*

@@ -87,7 +87,7 @@ void show_account(const pDListNode account_node)
         static num = 0;
         pAccKeyPair value = account_node->data;
 
-        printf("%2d: %-*s\n\n", num++, ACC_LEN, value->account);
+        printf("%2d: %-*s %-*s\n\n", num++, ACC_LEN, value->account, DES_LEN, value->description);
 }
 
 
@@ -97,7 +97,7 @@ int verify_mainkey(void)
 
         printf("Enter password: ");
         fgets(input, KEY_LEN, stdin);
-        return !strcmp(input, password.main_key);
+        return !strcmp(input, get_mainkey());
 }
 
 
@@ -118,6 +118,11 @@ const char* get_enkey(const pAccKeyPair account_node)
 const char* get_streamkey(const pAccKeyPair account_node)
 {
         return account_node->stream_cipher;
+}
+
+const char* get_mainkey(void)
+{
+        return password.main_key;
 }
 
 const char* get_scndrykey(void)
