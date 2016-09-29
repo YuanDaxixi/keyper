@@ -8,23 +8,30 @@
 #include "info_struct.h"
 #include "PRG.h"
 
-static Identity password;
+static Identity password = { "0", "0" }; // just for test
 
 int add_account(DLinkedList *account_list)
 {
         AccKeyPair value;
         pDListNode new_node;
 
-        if ( new_node_back(account_list) == NULL )
+        if ( (new_node = new_node_back(account_list)) == NULL )
                 return 0;
-        else
+
+        printf("Enter account name[%d bytes at most]: ", ACC_LEN);
+        gets(value.account);
+        
+        if ( seek_by_value(account_list, (Elem)&value, is_same) != NULL )
         {
-                printf("Enter account name[%d bytes at most]: ", ACC_LEN);
-                fgets(&value.account, ACC_LEN ,stdin);
-                //generate a key for the account
-                assign_value(new_node, (Elem)&value, sizeof(value));
-                return 1;
+                printf("The account you added exists!\n");
+                return 0;
         }
+        gen_key(&value);
+        printf("Add a description for this account[128 at most]:\n");
+        gets(value.description);
+        assign_value(new_node, (Elem)&value, sizeof(value));
+
+        return 1;
 }
 
 
@@ -35,12 +42,14 @@ int delete_account(DLinkedList *account_list, char* account_name)
 
         if ( verify_scndrykey() != 0 )
         {
-                strncpy(&value.account, account_name, ACC_LEN);
+                strncpy(value.account, account_name, ACC_LEN);
+                value.account[ACC_LEN + 1] = '\0';
                 account_node = seek_by_value(account_list, (Elem)&value, is_same);
-                return delete_node(account_list, account_node);
+                if ( account_node == NULL )
+                        printf("The account doesn't exist.\n");
+                return account_node != NULL ? (int)delete_node(account_list, account_node) : 0;
         }
-        else
-                return 0;
+        return 0;
 }
 
 void free_all(DLinkedList *account_list)
@@ -50,17 +59,16 @@ void free_all(DLinkedList *account_list)
         printf("Are you sure to delete all the accounts information?[Y/N]\n");
         if ( (choose = getchar()) == 'y' || choose == 'Y' )
         {
+                while ( getchar() != '\n' );
                 if ( verify_scndrykey() != 0 )
                 {
-                        free(account_list);
+                        free_list(account_list);
+                        init_list(account_list);
                         system("del /f /q filename");
                 }
         }
         else
-                ;
-
-        while ( getchar() != '\n' )
-                continue;
+                while ( getchar() != '\n' );
 }
 
 
@@ -72,10 +80,19 @@ int change_key(DLinkedList *account_list, char *account_name)
 
         if ( verify_scndrykey() != 0 )
         {
-                strncpy(&value.account, account_name, ACC_LEN);
+                strncpy(value.account, account_name, ACC_LEN);
+                value.account[ACC_LEN + 1] = '\0';
                 account_node = seek_by_value(account_list, (Elem)&value, is_same);
-                //generate a new key for the account
-                ret = (int)assign_value(account_node, (Elem)&value, sizeof(value));
+                if ( account_node == NULL )
+                {
+                        printf("The account doesn't exist.\n");
+                        ret = 0;
+                }
+                else
+                {
+                        gen_key(&value);
+                        ret = (int)assign_value(account_node, (Elem)&value, sizeof(value));
+                }
         }
 
         return ret;
@@ -87,7 +104,7 @@ void show_account(const pDListNode account_node)
         static num = 0;
         pAccKeyPair value = account_node->data;
 
-        printf("%2d: %-*s %-*s\n\n", num++, ACC_LEN, value->account, DES_LEN, value->description);
+        printf("%2d: %-*s %-s\n\n", num++, ACC_LEN, value->account, value->description);
 }
 
 
@@ -96,7 +113,10 @@ int verify_mainkey(void)
         char input[KEY_LEN];
 
         printf("Enter password: ");
-        fgets(input, KEY_LEN, stdin);
+        gets(input);
+        if ( strcmp(input, get_mainkey()) )
+                printf("Bad pasword.\n");
+
         return !strcmp(input, get_mainkey());
 }
 
@@ -106,8 +126,34 @@ int verify_scndrykey(void)
         char input[KEY_LEN];
 
         printf("Secondary password: ");
-        fgets(input, KEY_LEN, stdin);
+        gets(input);
+        if ( strcmp(input, get_scndrykey()) )
+                printf("Bad password.\n");
+
         return !strcmp(input, get_scndrykey());
+}
+
+void show_password(DLinkedList *account_list, char account_name[])
+{
+        pDListNode account_node;
+        AccKeyPair value;
+        unsigned int i;
+
+        if ( verify_scndrykey() )
+        {
+                strncpy(value.account, account_name, ACC_LEN);
+                value.account[ACC_LEN + 1] = '\0';
+                account_node = seek_by_value(account_list, (Elem)&value, is_same);
+                if ( account_node == NULL )
+                {
+                        printf("The account dosen't exist.\n");
+                        return;
+                }
+                value = *(pAccKeyPair)account_node->data;
+                for ( i = 0; i < strlen(value.encrypted_key); i++ )
+                        printf("%c", value.encrypted_key[i] ^ value.stream_cipher[i]);
+                putchar('\n');
+        }
 }
 
 const char* get_enkey(const pAccKeyPair account_node)

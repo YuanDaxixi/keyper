@@ -19,7 +19,7 @@
 /* data in the doubly linked list
  * void * make the list common used
  */
-typedef void * Elem;
+typedef void * Elem     ;
 
 /* definition of doubly linked list */
 typedef struct list{
@@ -71,7 +71,6 @@ int get_list_len(DLinkedList *p_list);
  * call:            none
  * called by:       none
  */
-
 pDListNode new_node_back(DLinkedList *p_list);
 
 /*
