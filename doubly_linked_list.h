@@ -6,7 +6,7 @@
  */
 
 /*
- *  modified    2014-5    Yuanda Zhang
+ *  modified    2015-5    Yuanda Zhang
  */
 
 #ifndef __DOUBLY_LIST_H__
@@ -19,7 +19,7 @@
 /* data in the doubly linked list
  * void * make the list common used
  */
-typedef void * Elem     ;
+typedef void * Elem;
 
 /* definition of doubly linked list */
 typedef struct list{
@@ -43,7 +43,7 @@ typedef struct{
 #define list_tail(list)            ( (list) ? (list)->tail : NULL )
 #define next_list_node(node)        ( (node)->next )
 #define prev_list_node(node)        ( (node)->prev )
-#define is_valid_node(node, list)   ( (node) != NULL && (node)->next != list_tail(list) )
+#define is_valid_node(node, list)   ( (node) != NULL && node != list_tail(list) && node != list_head(list))
 #define data_list_node(node, type)  ( (type)((node)->data) )
 
 /*

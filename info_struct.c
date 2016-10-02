@@ -64,7 +64,6 @@ void free_all(DLinkedList *account_list)
                 {
                         free_list(account_list);
                         init_list(account_list);
-                        system("del /f /q filename");
                 }
         }
         else
