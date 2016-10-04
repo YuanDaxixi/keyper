@@ -12,8 +12,12 @@
 #define KEY_LEN 16
 #define SHA_LEN 256
 #define DES_LEN 128
+#define PLAINTXT "kitty.dat"
+#define HISTORY "history"
+#define CIPHERTXT "kitty.gpg"
 
 #include "doubly_linked_list.h"
+#include "cipher.h"
 
 typedef struct{
         char encrypted_key[KEY_LEN + 1];
@@ -32,7 +36,7 @@ typedef Identity *pIdentity;
 
 /*
  * fucntion:  create a new account and its key  
- * return:    return 0 if fail 
+ * return:    return -1 if fail and return 0 if account exits 
  * parameter: the list
  * call:      none
  * called by: 
@@ -67,9 +71,9 @@ void free_all(DLinkedList *account_list);
 int change_key(DLinkedList *account_list, char *account_name);
 
 /*
- * fucntion:  list all names of the accounts
+ * fucntion:  list name of the account
  * return:    none
- * parameter: each account
+ * parameter: account node
  * call:      none
  * called by: none
  */
@@ -132,7 +136,7 @@ const char* get_scndrykey(void);
 /*
  * fucntion:  get the main key
  * return:    the address of the string
- * parameter: the address of the account node
+ * parameter: none
  * call:      none
  * called by: verify_mainkey
  */

@@ -12,8 +12,6 @@
 #include <io.h>
 #include "info_struct.h"
 
-#define FILENAME "kitty.dat"
-
 /*
  * fucntion:   read passwords and accounts information from the file into main memory
  * return:     return 0 if fail

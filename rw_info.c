@@ -6,15 +6,16 @@
  */
 
 #include "rw_info.h"
+#include "sha.h"
 
 void create_file(void)
 {
         char cmd[128];
         
-        if ( _access(FILENAME, 0) == 0 )
+        if ( _access(PLAINTXT, 0) == 0 )
                 ;
         else
-                fclose(fopen(FILENAME, "wb"));
+                fclose(fopen(PLAINTXT, "wb"));
 }
 
 int read_info(DLinkedList* account_list, pIdentity password)
@@ -23,16 +24,18 @@ int read_info(DLinkedList* account_list, pIdentity password)
         AccKeyPair temp;
         pDListNode new_node;
 
-        if ( (fp = fopen(FILENAME, "rb")) == NULL)
+        if ( (fp = fopen(PLAINTXT, "rb")) == NULL)
         {
-                fprintf(stderr, "Can't open file: %s.\n", FILENAME);
+                fprintf(stderr, "Can't open file: %s.\n", PLAINTXT);
                 return 0;
         }
         if ( fread(password, sizeof(Identity), 1, fp) != 1 )
         {
                 printf("Welcome!Welcome!\n");
                 printf("It's your first time to use me, ");
-                printf("I have many words to say, but I won't say, haha!\n");
+                printf("I have many words to tell, but I won't say, haha!\n");
+                StrSHA256("0", strlen("0"), password->main_key);
+                StrSHA256("0", strlen("0"), password->scndry_key);
         }
         while ( fread(&temp, sizeof(AccKeyPair), 1, fp) == 1 )
         {
@@ -46,10 +49,11 @@ int read_info(DLinkedList* account_list, pIdentity password)
                 printf("Now you can do something...\n\n");
         else
         {
-                printf("A,O. The data can't be read correctly.\n");
+                printf("AO. The data can't be read correctly.\n");
                 return 0;
         }
         fclose(fp);
+        remove(PLAINTXT);
 
         return 1;
 }
@@ -87,8 +91,7 @@ int write_info(DLinkedList* account_list, pIdentity password)
                 return 0;
         }
         fclose(fp);
-        remove(FILENAME);
-        rename("temp", FILENAME);
+        rename("temp", PLAINTXT);
 
         return 1;
 }

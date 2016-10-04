@@ -82,7 +82,6 @@
     <ClCompile Include="PRG.c" />
     <ClCompile Include="rw_info.c" />
     <ClCompile Include="sha.c" />
-    <ClCompile Include="test_rw_info.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

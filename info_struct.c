@@ -7,8 +7,9 @@
 
 #include "info_struct.h"
 #include "PRG.h"
+#include "sha.h"
 
-static Identity password = { "0", "0" }; // just for test
+Identity password; // just for test
 
 int add_account(DLinkedList *account_list)
 {
@@ -16,7 +17,7 @@ int add_account(DLinkedList *account_list)
         pDListNode new_node;
 
         if ( (new_node = new_node_back(account_list)) == NULL )
-                return 0;
+                return -1;
 
         printf("Enter account name[%d bytes at most]: ", ACC_LEN);
         gets(value.account);
@@ -56,7 +57,7 @@ void free_all(DLinkedList *account_list)
 {
         char choose;
 
-        printf("Are you sure to delete all the accounts information?[Y/N]\n");
+        printf("Are you sure to delete all information and changes?[Y/N]\n");
         if ( (choose = getchar()) == 'y' || choose == 'Y' )
         {
                 while ( getchar() != '\n' );
@@ -109,11 +110,12 @@ void show_account(const pDListNode account_node)
 
 int verify_mainkey(void)
 {
-        char input[KEY_LEN];
+        char input[KEY_LEN + 1];
+        char temp[SHA_LEN];
 
         printf("Enter password: ");
-        gets(input);
-        if ( strcmp(input, get_mainkey()) )
+        get_password(input);
+        if ( strcmp(StrSHA256(input, strlen(input), temp), get_mainkey()) )
                 printf("Bad pasword.\n");
 
         return !strcmp(input, get_mainkey());
@@ -122,11 +124,12 @@ int verify_mainkey(void)
 
 int verify_scndrykey(void)
 {
-        char input[KEY_LEN];
+        char input[KEY_LEN + 1];
+        char temp[SHA_LEN];
 
         printf("Secondary password: ");
-        gets(input);
-        if ( strcmp(input, get_scndrykey()) )
+        get_password(input);
+        if ( strcmp(StrSHA256(input, strlen(input), temp), get_scndrykey()) )
                 printf("Bad password.\n");
 
         return !strcmp(input, get_scndrykey());
