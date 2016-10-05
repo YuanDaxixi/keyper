@@ -10,8 +10,6 @@
 
 void create_file(void)
 {
-        char cmd[128];
-        
         if ( _access(PLAINTXT, 0) == 0 )
                 ;
         else
@@ -31,7 +29,7 @@ int read_info(DLinkedList* account_list, pIdentity password)
         }
         if ( fread(password, sizeof(Identity), 1, fp) != 1 )
         {
-                printf("Welcome!Welcome!\n");
+                printf("Welcome~Welcome!\n");
                 printf("It's your first time to use me, ");
                 printf("I have many words to tell, but I won't say, haha!\n");
                 StrSHA256("0", strlen("0"), password->main_key);
@@ -48,10 +46,8 @@ int read_info(DLinkedList* account_list, pIdentity password)
         if ( feof(fp) )
                 printf("Now you can do something...\n\n");
         else
-        {
                 printf("AO. The data can't be read correctly.\n");
-                return 0;
-        }
+            
         fclose(fp);
         remove(PLAINTXT);
 
@@ -62,36 +58,37 @@ int write_info(DLinkedList* account_list, pIdentity password)
 {
         FILE *fp;
         pDListNode temp;
+        int ret = 1;
 
         if ( (fp = fopen("temp", "wb")) == NULL )
         {
                 fprintf(stderr, "Writing error!\n");
-                return 0;
+                ret = 0;
         }
         if ( fwrite(password, sizeof(Identity), 1, fp) != 1 )
         {
                 fprintf(stderr, "Failing in writing password.\n");
-                remove("temp");
-                return 0;
+                ret = 0;
         }
-
-        temp = next_list_node(list_head(account_list));
-        while ( is_valid_node(temp, account_list) )
-        {
-                fwrite(data_list_node(temp, pAccKeyPair), sizeof(AccKeyPair), 1, fp);
-                temp = next_list_node(temp);
-        }
-
-        if ( !ferror(fp) )
-                printf("Done...\n\n");
         else
         {
-                printf("A,O. The data can't be written correctly.\n");
-                remove(temp);
-                return 0;
+                temp = next_list_node(list_head(account_list));
+                while ( is_valid_node(temp, account_list) )
+                {
+                        fwrite(data_list_node(temp, pAccKeyPair), sizeof(AccKeyPair), 1, fp);
+                        temp = next_list_node(temp);
+                }
+
+                if ( !ferror(fp) )
+                        printf("Done...\n\n");
+                else
+                {
+                        printf("A,O. The data can't be written correctly.\n");
+                        ret = 0;
+                }
         }
         fclose(fp);
         rename("temp", PLAINTXT);
 
-        return 1;
+        return ret;
 }

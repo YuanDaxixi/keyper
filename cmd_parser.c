@@ -7,6 +7,7 @@
 
 #include "cmd_parser.h"
 #include "ctype.h"
+#include <time.h>
 
 static void sweep(DLinkedList *account_list)
 {
@@ -22,7 +23,7 @@ static void del_acc(DLinkedList *account_list, char *account_name)
         int ret;
 
         ret = delete_account(account_list, account_name);
-        if ( ret == 1 )
+        if ( ret != 0 )
                 printf("[%s] deleted.\n", account_name);
         else
                 printf("Failed to delete.\n");
@@ -41,6 +42,7 @@ static void show_acc(DLinkedList *account_list)
 {
         pDListNode node;
         
+        num = 0;
         node = next_list_node(list_head(account_list));
         printf("index  %-*s %-s\n\n", ACC_LEN, "account name", "description");
         while ( is_valid_node(node, account_list) )
@@ -52,7 +54,7 @@ static void show_acc(DLinkedList *account_list)
 
 static void show_psswrd(DLinkedList *account_list, char account_name[])
 {
-        show_psswrd(account_list, account_name);
+        show_password(account_list, account_name);
 }
 
 static void change_psswrd(DLinkedList *account_list, char account_name[])
@@ -69,18 +71,19 @@ static void change_main(void)
         char sha256[SHA_LEN + 1];
         char key[KEY_LEN + 1];
         char key2[KEY_LEN + 1];
-        char temp;
-        int i;
 
         if ( verify_mainkey() && verify_scndrykey() )
         {
                 printf("Enter your new key[%d character at most]: ", KEY_LEN);
                 get_password(key);
                 printf("Enter it again: ");
-                while ( strcmp(get_password(key2), key) )
+                if ( strcmp(get_password(key2), key) )
                         printf("The keys you enterred are not same.\nEnter again: ");
-                StrSHA256(key, strlen(key), sha256);
-                strcpy(password.main_key, sha256);
+                else
+                {
+                        StrSHA256(key, strlen(key), sha256);
+                        strcpy(password.main_key, sha256);
+                }
         }
 }
 
@@ -89,18 +92,19 @@ static void change_scndry(void)
         char sha256[SHA_LEN + 1];
         char key[KEY_LEN + 1];
         char key2[KEY_LEN + 1];
-        char temp;
-        int i;
 
         if ( verify_scndrykey() )
         {
-                printf("Enter your new key[%d character at most]", KEY_LEN);
+                printf("Enter your new key[%d character at most]: ", KEY_LEN);
                 get_password(key);
                 printf("Enter it again: ");
-                while ( strcmp(get_password(key2), key) )
+                if ( strcmp(get_password(key2), key) )
                         printf("The keys you enterred are not same.\nEnter again: ");
-                StrSHA256(key, strlen(key), sha256);
-                strcpy(password.scndry_key, sha256);
+                else
+                {
+                        StrSHA256(key, strlen(key), sha256);
+                        strcpy(password.scndry_key, sha256);
+                }
         }
 }
 
@@ -115,28 +119,34 @@ static void good_bye(void)
 static void save_quit(DLinkedList *account_list)
 {
         char input_key[KEY_LEN + 1];
-        char temp[KEY_LEN + 1];
+        char input_key2[KEY_LEN + 1];
         char sha256[SHA_LEN];
+        char backup_name[64];
 
-        printf("Enter your main password[a different key means you want to change it]:");
+        printf("Enter your main password[a different key means you want to change it]: ");
         get_password(input_key);
 
         if ( strcmp(StrSHA256(input_key, strlen(input_key), sha256), get_mainkey()) )
         {
-                printf("Enter it again if you mean a new password\n");
-                scanf("%s", temp);
-                while ( getchar() != '\n' );
-                if ( strcmp(input_key, temp) )
+                printf("Enter it again if you mean a new password: ");
+                get_password(input_key2);
+                if ( strcmp(input_key, input_key2) )
                 {
                         printf("The passwords you enterrd were not same.\n");
                         return;
                 }
                 else
                 {
-                        strcpy(password.main_key, sha256);
+                        if ( verify_scndrykey() )
+                                strcpy(password.main_key, sha256);
+                        else
+                                return;
                 }
         }
+        
+        sprintf(backup_name, "%d", time(NULL));
         write_info(account_list, &password);
+        rename(HISTORY, backup_name);
         rename(CIPHERTXT, HISTORY);
         encrypt_kitty(input_key);
         remove(PLAINTXT);
@@ -148,10 +158,10 @@ static void parse_cmd(char cmd[], DLinkedList *acc_list)
         char cmd_name[CMD_LEN];
         char *opt_name;
 
-        sprintf(cmd_name, "%s", cmd);
+        sscanf(cmd, "%s", cmd_name);
         opt_name = cmd + strlen(cmd_name);
         while ( isblank(*opt_name) )
-                continue;
+                opt_name++;
 
         if ( strstr(cmd_name, SWEEP) )
                 sweep(acc_list);
@@ -171,6 +181,8 @@ static void parse_cmd(char cmd[], DLinkedList *acc_list)
                 show_psswrd(acc_list, opt_name);
         else if ( strstr(cmd_name, CHANGE_KEY) )
                 change_psswrd(acc_list, opt_name);
+        else if ( strstr(cmd_name, HELP) )
+                cmd_tip();
         else
                 printf("Bad command\n");
 }
@@ -192,10 +204,28 @@ static void get_cmd(char cmd[])
         cmd[i] = '\0';
 }
 
+static void cmd_tip(void)
+{
+        printf("\ncommand:\n");
+        printf("%-5s %*s    delete all accounts and all changes you have done.\n", SWEEP, strlen("<account name>"), " ");
+        printf("%-5s %*s    add a new account(a new key will be generated randomly).\n", ADD_ACCOUNT, strlen("<account name>"), " ");
+        printf("%-5s <account name>    delete a account by its name.\n", DELETE_ACCOUNT);
+        printf("%-5s %*s    list all accounts(name and description).\n", LIST_ACCOUNT, strlen("<account name>"), " ");
+        printf("%-5s <account name>    change key of the account.\n", CHANGE_KEY);
+        printf("%-5s <account name>    show key of the account.\n", SHOW_KEY);
+        printf("%-5s %*s    change your secondary password.\n", CHANGE_SECONDARY, strlen("<account name>"), " ");
+        printf("%-5s %*s    exit the program without save.\n", QUIT, strlen("<account name>"), " ");
+        printf("%-5s %*s    save your changes and exit.\n", SAVE_AND_QUIT, strlen("<account name>"), " ");
+        printf("%-5s %*s    show usage of each command\n\n", HELP, strlen("<account name>"), " ");
+}
+
 void cmd(DLinkedList *acc_list)
 {
         char cmd[CMD_LEN + OPT_LEN];
 
-        get_cmd(cmd);
-        parse_cmd(cmd, acc_list);
+        while ( 1 )
+        {
+                get_cmd(cmd);
+                parse_cmd(cmd, acc_list);
+        }
 }

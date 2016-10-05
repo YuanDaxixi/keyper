@@ -12,7 +12,7 @@
 #define KEY_LEN 16
 #define SHA_LEN 256
 #define DES_LEN 128
-#define PLAINTXT "kitty.dat"
+#define PLAINTXT "kitty"
 #define HISTORY "history"
 #define CIPHERTXT "kitty.gpg"
 

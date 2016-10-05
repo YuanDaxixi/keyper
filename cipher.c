@@ -11,10 +11,11 @@ void decrypt_kitty(void)
 {
         char cmd[128] = "gpg --batch --passphrase ";
         char passwd[KEY_LEN + 1];
+        char sha256[SHA_LEN];
 
         if ( _access(CIPHERTXT, 0) == 0 )
         {
-                printf("Enter the password: \n");
+                printf("Enter the password: ");
                 get_password(passwd);
                 strcat(cmd, passwd);
                 strcat(cmd, " -o ");
@@ -44,13 +45,28 @@ char* get_password(char *passwd)
 
         for ( i = 0; i < KEY_LEN; i++ )
         {
-                temp = getch();
+                temp = _getch();
                 if ( temp == '\r' )
                         break;
+                else if ( temp == '\b' )
+                {
+                        if ( i > 0 )
+                        {
+                                i -= 2;
+                                printf("\b \b");
+                        }
+                        else if ( i == 0 )
+                                i--;
+                        else
+                                ;
+                }
                 else
+                {
                         passwd[i] = temp;
-                putchar('*');
+                        putchar('*');
+                }
         }
+        putchar('\n');
         passwd[i] = '\0';
 
         return passwd;

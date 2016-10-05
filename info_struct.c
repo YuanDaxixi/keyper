@@ -9,7 +9,8 @@
 #include "PRG.h"
 #include "sha.h"
 
-Identity password; // just for test
+Identity password;
+int num;
 
 int add_account(DLinkedList *account_list)
 {
@@ -101,9 +102,7 @@ int change_key(DLinkedList *account_list, char *account_name)
 
 void show_account(const pDListNode account_node)
 {
-        static num = 0;
         pAccKeyPair value = account_node->data;
-
         printf("%2d: %-*s %-s\n\n", num++, ACC_LEN, value->account, value->description);
 }
 
@@ -116,9 +115,12 @@ int verify_mainkey(void)
         printf("Enter password: ");
         get_password(input);
         if ( strcmp(StrSHA256(input, strlen(input), temp), get_mainkey()) )
+        {
                 printf("Bad pasword.\n");
+                return 0;
+        }
 
-        return !strcmp(input, get_mainkey());
+        return 1;
 }
 
 
@@ -130,9 +132,12 @@ int verify_scndrykey(void)
         printf("Secondary password: ");
         get_password(input);
         if ( strcmp(StrSHA256(input, strlen(input), temp), get_scndrykey()) )
+        {
                 printf("Bad password.\n");
+                return 0;
+        }
 
-        return !strcmp(input, get_scndrykey());
+        return 1;
 }
 
 void show_password(DLinkedList *account_list, char account_name[])

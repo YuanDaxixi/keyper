@@ -25,10 +25,11 @@
 #define CHANGE_SECONDARY "csncd"
 #define QUIT "exit"
 #define SAVE_AND_QUIT "save"
+#define HELP "help"
 
 
 extern Identity password;
-
+extern int num;
 /*
  * fucntion:   delete all the information and change in main memory,
  *           so once invoke "save" to quit, everything gets empty.
@@ -119,6 +120,15 @@ static void good_bye(void);
  * called by:  cmd_exec
  */
 static void save_quit(DLinkedList *account_list);
+
+/*
+ * fucntion:   show usage of each command
+ * return:     none
+ * parameter:  none
+ * call:       none
+ * called by:  cmd_exec
+ */
+static void cmd_tip(void);
 
 /*
  * fucntion:   parse the command

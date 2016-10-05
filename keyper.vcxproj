@@ -78,6 +78,7 @@
     <ClCompile Include="cipher.c" />
     <ClCompile Include="cmd_parser.c" />
     <ClCompile Include="doubly_linked_list.c" />
+    <ClCompile Include="fear_not_this_night.c" />
     <ClCompile Include="info_struct.c" />
     <ClCompile Include="PRG.c" />
     <ClCompile Include="rw_info.c" />

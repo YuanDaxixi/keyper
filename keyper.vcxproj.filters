@@ -59,5 +59,8 @@
     <ClCompile Include="doubly_linked_list.c">
       <Filter>源文件</Filter>
     </ClCompile>
+    <ClCompile Include="fear_not_this_night.c">
+      <Filter>源文件</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

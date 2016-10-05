@@ -10,6 +10,7 @@
 
 #include "info_struct.h"
 #include "io.h"
+#include <conio.h>
 
 /*
  * fucntion:   decrypt the file
