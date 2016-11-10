@@ -99,7 +99,7 @@ static void change_scndry(void)
                 get_password(key);
                 printf("Enter it again: ");
                 if ( strcmp(get_password(key2), key) )
-                        printf("The keys you enterred are not same.\nEnter again: ");
+                        printf("The keys you enterred are not same.\n");
                 else
                 {
                         StrSHA256(key, strlen(key), sha256);
@@ -146,8 +146,8 @@ static void save_quit(DLinkedList *account_list)
         
         sprintf(backup_name, "%d", time(NULL));
         write_info(account_list, &password);
-        rename(HISTORY, backup_name);
-        rename(CIPHERTXT, HISTORY);
+        if ( rename(HISTORY, backup_name) || rename(CIPHERTXT, HISTORY) != 0 )
+                printf("Failed in backup.\n");
         encrypt_kitty(input_key);
         remove(PLAINTXT);
         good_bye();

@@ -26,14 +26,14 @@ void gen_stream(char cipher[], int length)
 void gen_key(pAccKeyPair cipher_key)
 {
         int key_len, temp, i;
-        int lower, upper, special;
-        lower = upper = special = 1;
+        int lower, upper, special, digit;
+        digit = lower = upper = special = 1;
 
         srand(time(NULL));
         key_len = MIN_LEN + gen_prandom() % (DIS + 1);
         gen_stream(cipher_key->stream_cipher, key_len);
 
-        while ( lower || upper || special )
+        while ( digit || lower || upper || special )
         {
                 lower = upper = special = 1;
                 for ( i = 0; i < key_len; i++ )
@@ -46,6 +46,8 @@ void gen_key(pAccKeyPair cipher_key)
                                 upper = 0;
                         else if ( islower(temp) )
                                 lower = 0;
+                        else if ( isdigit(temp) )
+                                digit = 0;
                         else
                                 special = 0;
                 }

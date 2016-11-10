@@ -77,7 +77,7 @@ int change_key(DLinkedList *account_list, char *account_name)
 {
         pDListNode account_node;
         AccKeyPair value;
-        int ret;
+        int ret = 0;
 
         if ( verify_scndrykey() != 0 )
         {

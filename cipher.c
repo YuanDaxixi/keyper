@@ -11,7 +11,6 @@ void decrypt_kitty(void)
 {
         char cmd[128] = "gpg --batch --passphrase ";
         char passwd[KEY_LEN + 1];
-        char sha256[SHA_LEN];
 
         if ( _access(CIPHERTXT, 0) == 0 )
         {
