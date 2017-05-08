@@ -265,3 +265,4 @@ __pycache__/
 *.pyc
 kitty.dat
 test_rw_info.c
+test.c
