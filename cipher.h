@@ -21,7 +21,7 @@
  */
 void decrypt_kitty(void);
 
-/*
+/* 
  * fucntion:   input password
  * return:     address to save password
  * parameter:  1.address to save password
